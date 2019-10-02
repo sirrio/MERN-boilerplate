@@ -16,19 +16,12 @@ router
   })
   .post((request, response) => {
     const data = request.body.data;
-    user.find({ username: data.username }, (error, _user) => {
+    user.create(data, (error, _user) => {
       if (error) {
         console.log(error);
         response.status(500).send(error);
       } else {
-        user.create(data, (error, _user) => {
-          if (error) {
-            console.log(error);
-            response.status(500).send(error);
-          } else {
-            response.status(201).json(_user);
-          }
-        });
+        response.status(201).json(_user);
       }
     });
   });
