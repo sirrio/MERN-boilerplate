@@ -15,13 +15,15 @@ router
     });
   })
   .post((request, response) => {
-    const body = request.body;
-    user.find({ username: body.name }, (error, _user) => {
+    const data = request.body.data;
+    user.find({ username: data.username }, (error, _user) => {
       if (error) {
+        console.log(error);
         response.status(500).send(error);
       } else {
-        user.create(request.body, (error, _user) => {
+        user.create(data, (error, _user) => {
           if (error) {
+            console.log(error);
             response.status(500).send(error);
           } else {
             response.status(201).json(_user);

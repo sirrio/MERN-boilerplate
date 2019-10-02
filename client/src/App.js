@@ -1,27 +1,38 @@
 import React, { Component } from "react"
 import "./App.css"
+import axios from "axios"
 
 class App extends Component {
   state = { users: [], value: "bla" }
 
   componentDidMount() {
-    fetch("/users")
-      .then((res) => res.json())
-      .then((users) => this.setState({ users }))
+    // fetch("/users")
+    //   .then((res) => res.json())
+    //   .then((users) => this.setState({ users }))
+    axios.get("/users").then((response) => {
+      const users = response.data
+      this.setState({ users })
+    })
   }
 
   createUser = (data) => {
-    fetch("/users", {
-      method: "post",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data)
+    // fetch("/users", {
+    //   method: "post",
+    //   headers: { "Content-Type": "application/json" },
+    //   body: JSON.stringify(data)
+    // })
+    //   .then((response) => response.json())
+    //   .then((users) =>
+    //     fetch("/users")
+    //       .then((res) => res.json())
+    //       .then((users) => this.setState({ users }))
+    //   )
+    axios.post("/users", { data }).then(() => {
+      axios.get("/users").then((response) => {
+        const users = response.data
+        this.setState({ users })
+      })
     })
-      .then((response) => response.json())
-      .then((users) =>
-        fetch("/users")
-          .then((res) => res.json())
-          .then((users) => this.setState({ users }))
-      )
   }
 
   handleChange = (event) => {
