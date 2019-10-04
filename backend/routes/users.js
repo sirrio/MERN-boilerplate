@@ -26,4 +26,15 @@ router
     });
   });
 
+router.route('/:id').delete((request, response) => {
+  user.findByIdAndRemove(request.params.id, (error, result) => {
+    if (error) {
+      console.log(error);
+      response.status(500).send(result);
+    } else {
+      response.status(200).json(result);
+    }
+  });
+});
+
 module.exports = router;
