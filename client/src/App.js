@@ -3,12 +3,13 @@ import "./App.css"
 import axios from "axios"
 
 class App extends Component {
-  state = { users: [], value: "", uservalues: {} }
+  state = { users: [], tmpUser: [], newUser: "" }
 
   componentDidMount() {
     axios.get("/users").then((response) => {
       const users = response.data
-      this.setState({ users })
+      const usersCopy = JSON.parse(JSON.stringify(users))
+      this.setState({ users: users, tmpUser: usersCopy })
     })
   }
 
@@ -17,30 +18,43 @@ class App extends Component {
     axios.post("/users", { data }).then(() => {
       axios.get("/users").then((response) => {
         const users = response.data
-        this.setState({ users })
+        const usersCopy = JSON.parse(JSON.stringify(users))
+        this.setState({ users: users, tmpUser: usersCopy })
       })
     })
   }
 
-  updateUser = () => {
-    console.log("updateuser")
+  updateUser = (id) => {
+    const tmpUser = this.state.tmpUser.find((cuser) => cuser._id === id)
+    const newUser = { _id: tmpUser.id, username: tmpUser.username }
+
+    axios.put(`/users/${id}`, newUser).then(() => {
+      axios.get("/users").then((response) => {
+        const users = response.data
+        const usersCopy = JSON.parse(JSON.stringify(users))
+        this.setState({ users: users, tmpUser: usersCopy })
+      })
+    })
   }
 
   deleteUser = (id) => {
     axios.delete(`/users/${id}`).then(() => {
       axios.get("/users").then((response) => {
         const users = response.data
-        this.setState({ users })
+        const usersCopy = JSON.parse(JSON.stringify(users))
+        this.setState({ users: users, tmpUser: usersCopy })
       })
     })
   }
 
-  handleChange = (event) => {
-    this.setState({ value: event.target.value })
+  createUserInputOnChange = (value) => {
+    this.setState({ newUser: value })
   }
 
-  updateChange = (event, id) => {
-    this.setState({})
+  updateUserInputOnchange = (value, id) => {
+    const tmpUser = this.state.tmpUser
+    tmpUser.find((cuser) => cuser._id === id).username = value
+    this.setState({ tmpUser: tmpUser })
   }
 
   render() {
@@ -57,8 +71,13 @@ class App extends Component {
                 <td>
                   <input
                     type="text"
-                    value={user.username}
-                    onChange={(event) => this.updateChange(event, user._id)}
+                    value={
+                      this.state.tmpUser.find((cuser) => cuser._id === user._id)
+                        .username
+                    }
+                    onChange={(event) =>
+                      this.updateUserInputOnchange(event.target.value, user._id)
+                    }
                   />
                 </td>
                 <td>
@@ -71,8 +90,12 @@ class App extends Component {
             ))}
           </tbody>
         </table>
-        <input type="text" value={this.state.value} onChange={this.handleChange} />
-        <button onClick={() => this.createUser({ username: this.state.value })}>
+        <input
+          type="text"
+          value={this.state.newUser}
+          onChange={(event) => this.createUserInputOnChange(event.target.value)}
+        />
+        <button onClick={() => this.createUser({ username: this.state.newUser })}>
           New
         </button>
       </div>
